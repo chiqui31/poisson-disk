@@ -1,0 +1,19 @@
+# Rust Specific
+/target
+
+# Media Files
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.mp4
+
+# Environment & IDEs
+.env
+.DS_Store
+.vscode/
+.idea/
+
+# Keep /assets
+!/assets/*.jpg
+!/assets/*.mp4
