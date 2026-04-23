@@ -36,7 +36,10 @@ Both methods utilize a grid to optimize spatial sampling. We set each grid cell 
 - **Luma:** Inverted luminance. Dark areas result in higher point density (smaller radius).
 - **Sobel:** Edge magnitude. Points cluster around high-contrast edges.
 - **Blend:** A weighted mix of Sobel and Luma:
-$$\text{Blend} = \alpha\cdot \text{Sobel} + (1-\alpha)\cdot\text{Luma}\;,\;\alpha\in[0,1]$$
+
+$$
+\text{Blend} = \alpha\cdot \text{Sobel} + (1-\alpha)\cdot\text{Luma}\\;,\\;\alpha\in[0,1]
+$$
 
 ### Rendering Modes
 
@@ -48,7 +51,10 @@ $$\text{Blend} = \alpha\cdot \text{Sobel} + (1-\alpha)\cdot\text{Luma}\;,\;\alph
 ### Auto-Scaling Logic
 
 The library automatically scales the minimum radius ($r_{min}$​) based on the image's long edge (referenced at 1080p/1920px):
-$$r_{min} = \text{ref\_r\_min} \times \frac{\max(W, H)}{1920} \times \text{coarseness}$$
+
+$$
+r_{min} = \text{ref\\_r\\_min} \times \frac{\max(W, H)}{1920} \times \text{coarseness}
+$$
 - **Stippling Reference:** 1.0px
 - **Voronoi Reference:** 2.0px
 - **R_MIN_FLOOR:** 0.5px (Prevents memory exhaustion on ultra-high resolutions).
@@ -72,30 +78,68 @@ $$r_{min} = \text{ref\_r\_min} \times \frac{\max(W, H)}{1920} \times \text{coars
 | `--gif-scale` | `f32` | Downscale factor for the GIF output | `1.0` |
 | `--png-scale` | `f32` | Downscale factor for the final PNG image | `1.0` |
 
----
-
 ## 📊 Performance & Visual Comparison
 
 Here's a quick look at how the different algorithms sample points across the canvas and perform rendering.\
-Note that all following results were generated based on 
+Note that all following results were generated using default parameters.
 
-| **Input Image** | **Dart Throwing + Sobel + Stippling** | **Multi-Seed Bridson + Blend + Voronoi** |
-| :---: | :---: | :---: |
-| <img src="assets/fuji.jpg" width="400"> | <video src="assets/dart_sobel_stippling.mp4" width="400" autoplay loop muted></video> | <video src="assets/bridson_blend_voronoi.mp4" width="400" autoplay loop muted></video> |
-
----
+<table style="width: 100%; table-layout: fixed;">
+    <thead>
+        <tr align="center">
+            <th><b>Input Image</b></th>
+            <th><b>Dart Throwing + Sobel + Stippling</b></th>
+            <th><b>Multi-Seed Bridson + Blend + Voronoi</b></th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td width="33.3%">
+                <img src="assets/fuji.jpg" style="width: 100%; display: block;">
+            </td>
+            <td width="33.3%">
+                <img src="assets/dart_sobel_stippling.gif" style="width: 100%; display: block;">
+            </td>
+            <td width="33.3%">
+                <img src="assets/bridson_blend_voronoi.gif" style="width: 100%; display: block;">
+            </td>
+        </tr>
+    </tbody>
+</table>
 
 ### Stippling
 
 The following table illustrates results in stippling mode. While both sampling methods produce similar visual results, **Bridson** tends to struggle with the sparse areas between high-contrast contours in **Sobel** mode (visible in the upper pagoda section).
 
-| `luma` | `sobel (Dart Throwing)` | `sobel (Bridson)` | `blend` |
-| :---: | :---: | :---: | :---: |
-| <img src="assets/stipple_bridson_luma.jpg" width="300"> | <img src="assets/stipple_dart_sobel.jpg" width="300"> | <img src="assets/stipple_bridson_sobel.jpg" width="300"> | <img src="assets/stipple_bridson_blend.jpg" width="300"> |
-| **Bridson:** ~480k pts (8s) | -- | ~230k points (5s) | **Bridson:** ~300k points (6s) |
-| **Dart Throwing:** ~500k pts (80s) | ~250k points (150s) | -- | **Dart Throwing:** ~320k pts (70s) |
-
----
+<table style="width: 100%; table-layout: fixed;">
+    <thead>
+        <tr align="center">
+            <th><code>luma</code></th>
+            <th><code>sobel (Dart Throwing)</code></th>
+            <th><code>sobel (Bridson)</code></th>
+            <th><code>blend</code></th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><img src="assets/stipple_bridson_luma.jpg" style="width:100%; display:block;"></td>
+            <td><img src="assets/stipple_dart_sobel.jpg" style="width:100%; display:block;"></td>
+            <td><img src="assets/stipple_bridson_sobel.jpg" style="width:100%; display:block;"></td>
+            <td><img src="assets/stipple_bridson_blend.jpg" style="width:100%; display:block;"></td>
+        </tr>
+        <tr align="center" style="font-size: 1em; vertical-align: middle;">
+            <td><b>Bridson:</b> ~480k pts (8s)</td>
+            <td>--</td>
+            <td><b>Bridson:</b> ~230k pts (5s)</td>
+            <td><b>Bridson:</b> ~300k pts (6s)</td>
+        </tr>
+        <tr align="center" style="font-size: 1em; vertical-align: middle;">
+            <td><b>Dart:</b> ~500k pts (80s)</td>
+            <td><b>Dart:</b> ~250k pts (150s)</td>
+            <td>--</td>
+            <td><b>Dart:</b> ~320k pts (70s)</td>
+        </tr>
+    </tbody>
+</table>
 
 ### Voronoi
 

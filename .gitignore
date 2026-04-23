@@ -16,4 +16,4 @@
 
 # Keep /assets
 !/assets/*.jpg
-!/assets/*.mp4
+!/assets/*.gif
